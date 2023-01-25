@@ -1,0 +1,55 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int    @id @default(autoincrement())
+  name         String @db.VarChar(50)
+  email        String @unique @db.VarChar(128)
+  passwordHash String @db.Char(60)
+
+  projects Project[]
+}
+
+model Project {
+  id          Int          @id @default(autoincrement())
+  name        String       @db.VarChar(40)
+  description String       @default("Default description")
+  members     User[]
+  tags        Tag[]
+  todos       Todo[]
+  InviteLink  InviteLink[]
+}
+
+model Tag {
+  id    Int     @id @default(autoincrement())
+  name  String  @db.Char(10)
+  color String  @db.VarChar(20)
+  list  Project @relation(fields: [projectId], references: [id])
+  todos Todo[]
+
+  projectId Int
+}
+
+model Todo {
+  id        Int     @id @default(autoincrement())
+  name      String  @db.Char(20)
+  completed Boolean @default(false)
+  list      Project @relation(fields: [projectId], references: [id])
+  tags      Tag[]
+
+  projectId Int
+}
+
+model InviteLink {
+  code           String   @id @db.Char(8)
+  projectId      Int
+  expirationDate DateTime
+
+  project Project @relation(fields: [projectId], references: [id])
+}

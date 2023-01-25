@@ -1,0 +1,936 @@
+openapi: 3.1.0
+info:
+  title: Yet Another Todo
+  version: "1.0"
+  license:
+    identifier: MIT
+    name: MIT
+  contact:
+    name: Felipe Cavichiolli Silvestre
+    url: felipesilvestre.dev/contact
+    email: felipecavichiollisivlestre@gmail.com
+  description: A todo app with live colaboration.
+  summary: A todo app with live colaboration.
+servers:
+  - url: "http://localhost:3000"
+tags:
+  - name: Projects
+  - name: Tag
+  - name: Todo
+  - name: Users
+components:
+  schemas:
+    User:
+      title: User
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+          minLength: 5
+          maxLength: 40
+        email:
+          type: string
+          maxLength: 128
+          minLength: 10
+          format: email
+      required:
+        - id
+        - name
+        - email
+      description: ""
+    Todo:
+      title: Todo
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+          maxLength: 30
+          minLength: 2
+        description:
+          type: string
+          maxLength: 256
+        tags:
+          type: array
+          uniqueItems: true
+          items:
+            $ref: "#componentsschemasTag"
+      required:
+        - id
+        - title
+      x-internal: false
+    Tag:
+      title: Tag
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+          minLength: 2
+          maxLength: 15
+        color:
+          type: string
+          minLength: 4
+          maxLength: 7
+          format: hexColor
+          pattern: "#([A-Fa-f0-9]{6}[A-Fa-f0-9]{3})$"
+    Project:
+      title: Project
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+          maxLength: 40
+          minLength: 3
+      description: ""
+    Error:
+      title: Error
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          minimum: 0
+          maximum: 600
+        message:
+          type: string
+        error:
+          type: string
+      required:
+        - statusCode
+        - error
+      x-internal: false
+    StringFilter:
+      type: object
+      description: Nested object for filtering string fields.
+      title: StringFilter
+      x-internal: false
+      properties:
+        eq:
+          type: string
+        contains:
+          type: string
+        startsWith:
+          type: string
+        endsWith:
+          type: string
+    NumberFilter:
+      title: NumberFilter
+      type: object
+      properties:
+        eq:
+          type: number
+        lt:
+          type: number
+        lte:
+          type: number
+        gt:
+          type: number
+        gte:
+          type: number
+  securitySchemes:
+    JWT:
+      type: http
+      scheme: bearer
+  parameters:
+    Select:
+      name: select
+      in: query
+      schema:
+        type: array
+        properties:
+          name:
+            type: integer
+            example: 1
+          age:
+            type: integer
+            example: -1
+        format: ","
+      description: A array that contains the fields to be selected
+    Page:
+      name: page
+      in: query
+      schema:
+        type: integer
+        minimum: 0
+      description: The page number. Starts at 0.
+    Limit:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 15
+        default: 10
+      description: The max number of item to be retrived per page.
+    Filter:
+      name: filter
+      in: query
+      style: deepObject
+      schema:
+        $ref: "#/components/schemas/StringFilter"
+      explode: true
+    projectId:
+      name: projectId
+      in: path
+      required: true
+      schema:
+        type: integer
+    userId:
+      name: userId
+      in: path
+      required: true
+      schema:
+        type: integer
+    todoId:
+      name: todoId
+      in: path
+      required: true
+      schema:
+        type: integer
+    tagId:
+      name: tagId
+      in: path
+      required: true
+      schema:
+        type: number
+  responses:
+    "400":
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          examples:
+            Example:
+              value:
+                statusCode: 400
+                message: string
+                error: Bad Request
+    "401":
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          examples:
+            Example:
+              value:
+                statusCode: 401
+                message: string
+                error: Unauthorized
+    "403":
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          examples:
+            Example:
+              value:
+                statusCode: 403
+                message: string
+                error: Forbidden
+    "404":
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          examples:
+            Example:
+              value:
+                statusCode: 404
+                message: string
+                error: Not Found
+    "422":
+      description: Unprocessable Entity
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          examples:
+            Example:
+              value:
+                statusCode: 422
+                message: string
+                error: Unprocessable Entity
+paths:
+  /users:
+    get:
+      summary: Get many Users
+      tags:
+        - Users
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+      operationId: get-users
+      description: Get many users.
+      parameters:
+        - $ref: "#/components/parameters/Select"
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+    post:
+      summary: Create a User
+      tags:
+        - Users
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          $ref: "#/components/responses/400"
+        "422":
+          $ref: "#/components/responses/422"
+      operationId: post-users
+      description: Create a User.
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 3
+                  maxLength: 50
+                email:
+                  type: string
+                  format: email
+                  minLength: 10
+                  maxLength: 128
+                password:
+                  type: string
+                  pattern: '^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$'
+                  minLength: 8
+              required:
+                - name
+                - email
+                - password
+            examples: {}
+  "/users/{userId}":
+    parameters:
+      - $ref: "#/components/parameters/userId"
+    get:
+      summary: Get a User
+      tags:
+        - Users
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+      operationId: get-users-userId
+      description: Get a User.
+      parameters:
+        - $ref: "#/components/parameters/Select"
+    patch:
+      summary: Update a User
+      tags:
+        - Users
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+      operationId: patch-users-userId
+      description: Update a User.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 3
+                  maxLength: 50
+                email:
+                  type: string
+                  format: email
+                  minLength: 10
+                  maxLength: 128
+                password:
+                  type: string
+                  pattern: '^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$'
+                  minLength: 8
+    delete:
+      summary: Delete a User
+      tags:
+        - Users
+      responses:
+        "204":
+          description: No Content
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+      operationId: delete-users-userId
+      description: Delete a User.
+  /users/login:
+    post:
+      summary: Log in
+      tags:
+        - Users
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jwt:
+                    type: string
+        "401":
+          $ref: "#/components/responses/401"
+        "404":
+          $ref: "#/components/responses/404"
+      operationId: post-users-login
+      description: Log in.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+        description: ""
+      security: []
+  /users/me:
+    get:
+      summary: Get logged User
+      tags:
+        - Users
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          $ref: "#/components/responses/401"
+        "404":
+          $ref: "#/components/responses/404"
+      operationId: get-users-me
+      security: []
+      description: Get logged User.
+      parameters:
+        - $ref: "#/components/parameters/Select"
+  /projects:
+    get:
+      summary: Get many Projects
+      tags:
+        - Projects
+      responses:
+        "200":
+          description: OK
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Project"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+      operationId: get-projects
+      description: Get many Projects.
+      parameters:
+        - $ref: "#/components/parameters/Select"
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+    post:
+      summary: Create a Project
+      tags:
+        - Projects
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+      operationId: post-projects
+      description: Create a Project.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 2
+                  maxLength: 40
+              required:
+                - name
+  "/projects/{projectId}":
+    parameters:
+      - $ref: "#/components/parameters/projectId"
+    get:
+      summary: Get a Project
+      tags:
+        - Projects
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+        "400":
+          description: Bad Request
+        "401":
+          $ref: "#/components/responses/401"
+      operationId: get-projects-projectId
+      description: Get a Project.
+      parameters:
+        - $ref: "#/components/parameters/Select"
+    patch:
+      summary: Update a Project
+      tags:
+        - Projects
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+      operationId: patch-projects-projectId
+      description: Update a Project.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 2
+                  maxLength: 40
+    delete:
+      summary: Delete a Project
+      tags:
+        - Projects
+      responses:
+        "204":
+          description: No Content
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+      operationId: delete-projects-projectId
+      description: Delete a Project.
+  "/projects/{projectId}/members":
+    parameters:
+      - $ref: "#/components/parameters/projectId"
+    get:
+      summary: Get members of project
+      tags:
+        - Projects
+        - Users
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+        "401":
+          $ref: "#/components/responses/401"
+        "404":
+          $ref: "#/components/responses/404"
+      operationId: get-projects-projectId-members
+      description: Get members of project.
+      parameters:
+        - $ref: "#/components/parameters/Select"
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+  "/projects/{projectId}/members/{userId}":
+    parameters:
+      - $ref: "#/components/parameters/projectId"
+      - $ref: "#/components/parameters/userId"
+    put:
+      summary: Add member to project.
+      tags:
+        - Projects
+        - Users
+      responses:
+        "204":
+          description: No Content
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+      operationId: put-projects-projectId-members-userId
+      description: Add member to project.
+    delete:
+      summary: Remove member of project.
+      tags:
+        - Projects
+        - Users
+      responses:
+        "204":
+          description: No Content
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+      operationId: delete-projects-projectId-members-userId
+      description: Remove member of project.
+  "/projects/{projectId}/tags":
+    parameters:
+      - $ref: "#/components/parameters/projectId"
+    get:
+      summary: Get available Tags of Project
+      tags:
+        - Tag
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tag"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+      operationId: get-projects-projectId-tags
+      description: Get available Tags of Project.
+      parameters:
+        - $ref: "#/components/parameters/Select"
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+    post:
+      summary: Create a Tag
+      tags:
+        - Tag
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tag"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+      operationId: post-projects-projectId-tags
+      description: Create a Tag.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 2
+                  maxLength: 10
+                color:
+                  type: string
+                  pattern: "^#[0-9A-Za-z]{6}$"
+                  maxLength: 7
+                  minLength: 7
+              required:
+                - name
+                - color
+        description: ""
+  "/projects/{projectId}/tags/{tagId}":
+    parameters:
+      - $ref: "#/components/parameters/projectId"
+      - $ref: "#/components/parameters/tagId"
+    patch:
+      summary: Update a Tag
+      tags:
+        - Tag
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tag"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+      operationId: patch-projects-projectId-tags-tagId
+      description: Update a Tag.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 2
+                  maxLength: 10
+                color:
+                  type: string
+                  pattern: "^#[0-9A-Za-z]{6}$"
+                  maxLength: 7
+                  minLength: 7
+    delete:
+      summary: Delete a Tag
+      tags:
+        - Tag
+      responses:
+        "204":
+          description: No Content
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+      operationId: delete-projects-projectId-tags-tagId
+      description: Delete a Tag.
+    get:
+      summary: Get a Tag
+      tags:
+        - Tag
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tag"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+      operationId: get-projects-projectId-tags-tagId
+      parameters:
+        - $ref: "#/components/parameters/Select"
+      description: Get a Tag.
+  "/projects/{projectId}/todos":
+    parameters:
+      - $ref: "#/components/parameters/projectId"
+    get:
+      summary: Get Todos of Project
+      tags:
+        - Todo
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Todo"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+      operationId: get-projects-projectId-todos
+      description: Get Todos of Project.
+      parameters:
+        - $ref: "#/components/parameters/Select"
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+    post:
+      summary: Create a Todo
+      tags:
+        - Todo
+      responses:
+        "201":
+          description: Created
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+      operationId: post-projects-projectId-todos
+      description: Create a Todo.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 2
+                  maxLength: 20
+                completed:
+                  type: boolean
+                  default: false
+                tagsIds:
+                  type: array
+                  items:
+                    type: integer
+              required:
+                - name
+  "/projects/{projectId}/todos/{todoId}":
+    parameters:
+      - $ref: "#/components/parameters/projectId"
+      - $ref: "#/components/parameters/todoId"
+    get:
+      summary: Get a Todo
+      tags:
+        - Todo
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Todo"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+      operationId: get-projects-projectId-todos-todoId
+      description: Get a Todo.
+      parameters:
+        - $ref: "#/components/parameters/Select"
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+    patch:
+      summary: Update a Todo
+      tags:
+        - Todo
+      responses:
+        "200":
+          description: OK
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+      operationId: patch-projects-projectId-todos-todoId
+      description: Update a Todo.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 2
+                  maxLength: 20
+                completed:
+                  type: boolean
+    delete:
+      summary: Delete a Todo
+      tags:
+        - Todo
+      responses:
+        "204":
+          description: No Content
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+      operationId: delete-projects-projectId-todos-todoId
+      description: Delete a Todo.
+security:
+  - JWT: []
