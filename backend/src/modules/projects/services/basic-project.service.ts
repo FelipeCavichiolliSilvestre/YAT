@@ -8,7 +8,7 @@ import {
 import { HandleDatabaseErrors } from '@infra/database/errors/handlers';
 
 import { TagEntity } from '@modules/tags/entities';
-import { TodoEntity } from '@modules/Todos/entities';
+import { TodoEntity } from '@modules/todos/entities';
 import { UserEntity } from '@modules/users/entities';
 
 import { ProjectEntity } from '../entities';

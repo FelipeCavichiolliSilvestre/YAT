@@ -1,6 +1,6 @@
 import { JwtPayload } from '@modules/auth/types';
 import { TagEntity } from '@modules/tags/entities';
-import { TodoEntity } from '@modules/Todos/entities';
+import { TodoEntity } from '@modules/todos/entities';
 import { Socket, Server } from 'socket.io';
 
 interface ServerToClientEvents {

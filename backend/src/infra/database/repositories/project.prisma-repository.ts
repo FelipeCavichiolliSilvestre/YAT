@@ -5,7 +5,7 @@ import { HandleAllPrismaErrors } from '@infra/prisma/errors/handlers';
 
 import { ProjectEntity } from '@modules/projects/entities';
 import { TagEntity } from '@modules/tags/entities';
-import { TodoEntity } from '@modules/Todos/entities';
+import { TodoEntity } from '@modules/todos/entities';
 import { UserEntity } from '@modules/users/entities';
 
 import {

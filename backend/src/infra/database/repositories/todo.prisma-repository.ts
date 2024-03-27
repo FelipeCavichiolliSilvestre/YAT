@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import { HandleAllPrismaErrors } from '@infra/prisma/errors/handlers';
 
-import { TodoEntity } from '@modules/Todos/entities';
+import { TodoEntity } from '@modules/todos/entities';
 
 import {
   AlterTagsOfTodoInput,

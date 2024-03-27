@@ -1,5 +1,5 @@
 import { TagEntity } from '@modules/tags/entities';
-import { TodoEntity } from '@modules/Todos/entities';
+import { TodoEntity } from '@modules/todos/entities';
 import { UseGuards } from '@nestjs/common';
 import {
   ConnectedSocket,

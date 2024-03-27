@@ -1,4 +1,4 @@
-import { TodoEntity } from '@modules/Todos/entities';
+import { TodoEntity } from '@modules/todos/entities';
 import { Injectable } from '@nestjs/common';
 
 import {
