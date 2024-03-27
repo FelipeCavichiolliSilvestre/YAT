@@ -52,13 +52,13 @@ export class TagPrismaRepository implements iTagRepository {
     id: number,
     select?: Select<TagEntity>,
   ): Promise<Partial<TagEntity>> {
-    return this.prisma.tag.findUnique({
+    const tag = await this.prisma.tag.findUnique({
       where: { id },
       select: select && convertSelectToBooleans(select),
-      rejectOnNotFound(): Error {
-        throw new EntityNotFoundError('Tag');
-      },
     });
+
+    if (!tag) throw new EntityNotFoundError('Tag');
+    return tag;
   }
 
   async findMany(data: FindManyTagsInput): Promise<Partial<TagEntity>[]> {

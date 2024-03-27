@@ -46,11 +46,11 @@ export class InvitePrismaRepository implements iInviteRepository {
 
   @HandleAllPrismaErrors()
   async getInvite(inviteCode: string): Promise<ProjectInviteEntity> {
-    return this.prisma.inviteLink.findUnique({
+    const invite = await this.prisma.inviteLink.findUnique({
       where: { code: inviteCode },
-      rejectOnNotFound(): Error {
-        throw new EntityNotFoundError('Invite');
-      },
     });
+
+    if (!invite) throw new EntityNotFoundError('invite');
+    return invite;
   }
 }

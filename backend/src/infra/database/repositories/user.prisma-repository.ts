@@ -117,23 +117,23 @@ export class UserPrismaRepository implements iUserRepository {
     id: number,
     select?: Select<UserEntity>,
   ): Promise<Partial<UserEntity>> {
-    return this.prisma.user.findUnique({
+    const user = await this.prisma.user.findUnique({
       where: { id },
       select: select && convertSelectToBooleans(select),
-      rejectOnNotFound(): Error {
-        throw new EntityNotFoundError('User');
-      },
     });
+
+    if (!user) throw new EntityNotFoundError('User');
+    return user;
   }
 
   @HandleAllPrismaErrors()
   async findOneByEmail(email: string): Promise<UserEntity> {
-    return this.prisma.user.findUnique({
+    const user = await this.prisma.user.findUnique({
       where: { email },
-      rejectOnNotFound(): Error {
-        throw new EntityNotFoundError('User');
-      },
     });
+
+    if (!user) throw new EntityNotFoundError('User');
+    return user;
   }
 
   async findMany(data: FindManyUsersInput): Promise<Partial<UserEntity>[]> {

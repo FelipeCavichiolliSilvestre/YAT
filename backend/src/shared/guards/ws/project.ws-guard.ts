@@ -27,7 +27,7 @@ export class ProjectWsGuard implements CanActivate {
         `${ProjectWsGuard.name} requires a jwt property appended in client.data`,
       );
     }
-    if (projectId == undefined || projectId === NaN) {
+    if (projectId == undefined || Number.isNaN(projectId)) {
       throw new WsException('projectId neded in handshake query');
     }
 

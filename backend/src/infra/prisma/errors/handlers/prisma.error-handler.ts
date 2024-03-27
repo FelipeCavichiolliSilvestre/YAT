@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { Prisma } from '@prisma/client';
 
 import {
@@ -13,11 +14,13 @@ function handlePrismaError(error: Prisma.PrismaClientKnownRequestError) {
 
   switch (error.code) {
     case 'P2002':
+      // @ts-ignore
       field = error.meta ? error.meta['target'][0] : 'unknown';
 
       throw new UniqueConstraintViolationError(field);
 
     case 'P2003':
+      // @ts-ignore
       field = error.meta ? error.meta['target'][0] : 'unknown';
 
       throw new ForeingKeyConstraintViolation(field);

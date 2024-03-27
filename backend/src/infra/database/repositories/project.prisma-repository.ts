@@ -45,10 +45,9 @@ export class ProjectPrismaRepository implements iProjectRepository {
           take: 2,
         },
       },
-      rejectOnNotFound(): Error {
-        throw new EntityNotFoundError('Project');
-      },
     });
+
+    if (!project) throw new EntityNotFoundError('Project');
 
     const thereIsOnlyOneMember = project.members.length === 1;
     if (!thereIsOnlyOneMember) return false;
@@ -75,10 +74,8 @@ export class ProjectPrismaRepository implements iProjectRepository {
           take: pagination && pagination.limit,
         },
       },
-      rejectOnNotFound(): Error {
-        throw new EntityNotFoundError('Project');
-      },
     });
+    if (!project) throw new EntityNotFoundError('Project');
 
     return project.members;
   }
@@ -103,10 +100,8 @@ export class ProjectPrismaRepository implements iProjectRepository {
           },
         },
       },
-      rejectOnNotFound(): Error {
-        throw new EntityNotFoundError('User');
-      },
     });
+    if (!project) throw new EntityNotFoundError('Project');
 
     return project.todos;
   }
@@ -128,10 +123,8 @@ export class ProjectPrismaRepository implements iProjectRepository {
           take: pagination && pagination.limit,
         },
       },
-      rejectOnNotFound(): Error {
-        throw new EntityNotFoundError('Project');
-      },
     });
+    if (!project) throw new EntityNotFoundError('Project');
 
     return project.tags;
   }
@@ -155,10 +148,8 @@ export class ProjectPrismaRepository implements iProjectRepository {
           },
         },
       },
-      rejectOnNotFound(): Error {
-        throw new EntityNotFoundError('Project');
-      },
     });
+    if (!project) throw new EntityNotFoundError('Project');
 
     return project.tags.length === tagsIds.length;
   }
@@ -180,10 +171,8 @@ export class ProjectPrismaRepository implements iProjectRepository {
           },
         },
       },
-      rejectOnNotFound(): Error {
-        throw new EntityNotFoundError('Project');
-      },
     });
+    if (!project) throw new EntityNotFoundError('Project');
 
     return project.members.length === 1;
   }
@@ -228,15 +217,15 @@ export class ProjectPrismaRepository implements iProjectRepository {
     id: number,
     select?: Select<ProjectEntity>,
   ): Promise<Partial<ProjectEntity>> {
-    return this.prisma.project.findUnique({
+    const project = await this.prisma.project.findUnique({
       where: {
         id,
       },
       select: select && convertSelectToBooleans(select),
-      rejectOnNotFound(): Error {
-        throw new EntityNotFoundError('Project');
-      },
     });
+    if (!project) throw new EntityNotFoundError('Project');
+
+    return project;
   }
 
   @HandleAllPrismaErrors()

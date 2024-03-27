@@ -103,13 +103,13 @@ export class TodoPrismaRepository implements iTodoRepository {
     id: number,
     select?: Select<TodoEntity>,
   ): Promise<Partial<TodoEntity>> {
-    return this.prisma.todo.findUnique({
+    const todo = await this.prisma.todo.findUnique({
       where: { id },
       select: select && convertSelectToBooleans(select),
-      rejectOnNotFound(): Error {
-        throw new EntityNotFoundError('Todo');
-      },
     });
+
+    if (!todo) throw new EntityNotFoundError('Todo');
+    return todo;
   }
 
   async findMany(data: FindManyTodosInput): Promise<Partial<TodoEntity>[]> {
