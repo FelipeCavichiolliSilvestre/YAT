@@ -16,7 +16,7 @@ import { join } from 'path';
     TodosModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'static'),
-      renderPath: 'static',
+      renderPath: 'docs',
     }),
     ScheduleModule.forRoot(),
   ],
