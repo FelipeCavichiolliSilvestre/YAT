@@ -1,0 +1,16 @@
+# Build dependencies
+dist
+node_modules
+
+# Versioning and metadata
+.git
+.github
+.gitignore
+
+# Environment
+.env
+
+# Files not required for production
+Dockerfile
+.eslintrc.js
+.prettierrc
