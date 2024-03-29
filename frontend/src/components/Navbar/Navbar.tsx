@@ -32,15 +32,15 @@ const Navbar: React.FC = () => {
         }}
       >
         <Grid container>
-          <CenteredGrid item xs={3}>
+          <CenteredGrid item xs={4}>
             <Logo />
           </CenteredGrid>
 
-          <CenteredGrid item xs={6}>
+          <CenteredGrid item xs={4}>
             <NavbarLink href="/projects">Projects</NavbarLink>
           </CenteredGrid>
 
-          <CenteredGrid item xs={3}>
+          <CenteredGrid item xs={4}>
             {isLoading ? (
               <></>
             ) : isAuthenticated ? (
