@@ -1,4 +1,4 @@
 export const inviteConfig = {
-  codeByteLength: 6,
-  expirationInSeconds: 60 * 30, // 30 minutes
+  codeByteLength: 8,
+  expirationInSeconds: 60 * 10, // 10 minutes
 };
