@@ -16,7 +16,7 @@ const InviteCodeModal: React.FC<Omit<ModalFormProps, "children">> = ({
   const { projectId } = useParams();
 
   const [inviteCode, setInviteCode] = useState<string | null>(null);
-  const inviteUrl = `http://localhost:3000/invites/${inviteCode}`;
+  const inviteUrl = `${import.meta.env.VITE_FRONTEND_URL}/invites/${inviteCode}`;
 
   useEffect(() => {
     if (!projectId) return;

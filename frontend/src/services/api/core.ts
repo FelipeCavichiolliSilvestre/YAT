@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const client = axios.create({
-  baseURL: "http://192.168.0.158:3000",
+  baseURL: import.meta.env.VITE_BACKEND_URL,
   validateStatus: (status: number) => {
     return status >= 200 && status < 400;
   },
