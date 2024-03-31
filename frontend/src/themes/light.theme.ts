@@ -16,19 +16,19 @@ export const lightTheme = createTheme({
   },
   tagColors: {
     red: {
-      main: "#f00",
+      main: "#f12717",
       contrastText: "#fff",
     },
     green: {
-      main: "#0f0",
+      main: "#12b71f",
       contrastText: "#fff",
     },
     blue: {
-      main: "#00f",
+      main: "#2142e7",
       contrastText: "#fff",
     },
     orange: {
-      main: "#ff0",
+      main: "#fdb808",
       contrastText: "#fff",
     },
   },

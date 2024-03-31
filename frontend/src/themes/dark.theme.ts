@@ -36,7 +36,7 @@ export const darkTheme = createTheme({
       contrastText: "#fff",
     },
     green: {
-      main: "#1CB829",
+      main: "#13941d",
       contrastText: "#fff",
     },
     blue: {
