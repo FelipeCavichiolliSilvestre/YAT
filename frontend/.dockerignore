@@ -1,0 +1,12 @@
+# Build dependencies
+dist
+node_modules
+
+# Versioning and metadata
+.gitignore
+
+# Environment
+.env
+
+# Files not required for production
+Dockerfile
