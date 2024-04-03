@@ -13,7 +13,7 @@ const useSocket = (
   useEffect(() => {
     if (!isAuthenticated) return;
 
-    const base = import.meta.env.VITE_BACKEND_URL;
+    const base = import.meta.env.VITE_WS_BACKEND_URL;
     const uri = namespace ? base + "/" + namespace : base;
 
     const socket = io(uri, {
