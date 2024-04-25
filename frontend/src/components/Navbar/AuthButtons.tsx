@@ -1,6 +1,7 @@
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import { styled } from "@mui/material/styles";
+import { useNavigate } from 'react-router-dom';
 
 const StyledButton = styled(Button)(({ theme }) => ({
   borderRadius: theme.spacing(5),
@@ -8,12 +9,14 @@ const StyledButton = styled(Button)(({ theme }) => ({
 }));
 
 const AuthButtons: React.FC = () => {
+  const navigate = useNavigate()
+
   return (
     <Box>
-      <StyledButton href="/signup" variant="outlined">
+      <StyledButton onClick={() => navigate("/signup")} variant="outlined">
         SIGN UP
       </StyledButton>
-      <StyledButton href="/login" variant="contained">
+      <StyledButton onClick={() => navigate("/login")} variant="contained">
         LOGIN
       </StyledButton>
     </Box>
