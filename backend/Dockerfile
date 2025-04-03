@@ -1,4 +1,4 @@
-FROM node:20-alpine AS builder
+FROM node:20 AS builder
 
 WORKDIR /app
 
@@ -12,7 +12,7 @@ COPY . .
 RUN yarn prisma generate
 RUN yarn build
 
-FROM node:20-alpine
+FROM node:20
 
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./
