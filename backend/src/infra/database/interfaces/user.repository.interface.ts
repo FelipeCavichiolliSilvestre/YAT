@@ -33,6 +33,9 @@ export interface CreateOneUserInput {
   name: string;
   email: string;
   passwordHash: string;
+  verified?: boolean;
+  verificationCode?: string | null;
+  verificationCodeDate?: string | null;
 }
 
 export type UpdateOneUserInput = Partial<CreateOneUserInput>;

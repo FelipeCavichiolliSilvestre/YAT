@@ -7,6 +7,7 @@ import { UsersModule } from '@modules/users/users.module';
 
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { MailModule } from '@infra/mail/mail.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { join } from 'path';
     TagsModule,
     ProjectsModule,
     TodosModule,
+    MailModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'static'),
       renderPath: 'docs',

@@ -10,7 +10,7 @@ import {
   RegexType,
   StringType,
 } from '@lib/decorators';
-import { IsEmail, Length } from 'class-validator';
+import { IsBase64, IsEmail, Length } from 'class-validator';
 import { PageLimitPagination } from '@shared/validation';
 import { ProjectEntity } from '@modules/projects/entities';
 
@@ -20,6 +20,8 @@ export abstract class iUserService {
   abstract delete(data: DeleteUserInput): Promise<void>;
   abstract update(id: number, data: UpdateUserInput): Promise<UserEntity>;
   abstract getOne(data: GetOneUserInput): Promise<Partial<UserEntity>>;
+  abstract verify(id: number, data: VerifyUserInput): Promise<void>;
+  abstract resendVerificationCode(id: number): Promise<void>;
 
   abstract enterProject(data: EnterOrExitProject): Promise<void>;
   abstract exitProject(data: EnterOrExitProject): Promise<void>;
@@ -63,6 +65,13 @@ export class UpdateUserInput {
     /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/,
   )
   password?: string;
+}
+
+export class VerifyUserInput {
+  @StringType()
+  @IsBase64({ url })
+  @Length(128, 128)
+  verificationCode: string;
 }
 
 export class GetOneUserInput {

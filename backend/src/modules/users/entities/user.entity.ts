@@ -3,4 +3,7 @@ export interface UserEntity {
   name: string;
   email: string;
   passwordHash: string;
+  verified: boolean;
+  verificationCode: string | null;
+  verificationCodeDate: Date | null;
 }

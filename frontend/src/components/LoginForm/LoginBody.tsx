@@ -32,6 +32,7 @@ const LoginBody: React.FC = () => {
       const statusCode = error.response.status;
       if (statusCode === 401) setAlertMessage("Invalid password");
       if (statusCode === 404) setAlertMessage("Email not found");
+      if (statusCode === 422) setAlertMessage("Email not verified");
 
       setAlertOpen(true);
     }

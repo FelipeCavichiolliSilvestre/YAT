@@ -4,11 +4,13 @@ import {
   ExecutionContext,
   UnauthorizedException,
   NotFoundException,
+  UnprocessableEntityException,
 } from '@nestjs/common';
 
 import { iAuthenticationService } from '@modules/auth/interfaces';
 import { UnauthorizedUserError } from '@modules/auth/error';
 import { EntityNotFoundError } from '@infra/database/errors';
+import { UnverifiedUserError } from '@shared/errors/unverified-user.error';
 
 @Injectable()
 export class LoginAuthHttpGuard implements CanActivate {
@@ -33,6 +35,8 @@ export class LoginAuthHttpGuard implements CanActivate {
         throw new UnauthorizedException(error.message);
       if (error instanceof EntityNotFoundError)
         throw new NotFoundException(error.message);
+      if (error instanceof UnverifiedUserError)
+        throw new UnprocessableEntityException(error.payload);
 
       throw error;
     }

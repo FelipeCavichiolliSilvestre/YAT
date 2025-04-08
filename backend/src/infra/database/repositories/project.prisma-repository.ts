@@ -62,13 +62,12 @@ export class ProjectPrismaRepository implements iProjectRepository {
     id: number,
     data: FindManyUsersInput,
   ): Promise<Partial<UserEntity>[]> {
-    const { pagination, select, where } = data;
+    const { pagination, select } = data;
 
     const project = await this.prisma.project.findUnique({
       where: { id },
       select: {
         members: {
-          where,
           select: select && convertSelectToBooleans(select),
           skip: pagination && pagination.limit * pagination.page,
           take: pagination && pagination.limit,

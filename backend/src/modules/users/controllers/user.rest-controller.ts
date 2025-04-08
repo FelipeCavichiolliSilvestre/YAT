@@ -9,6 +9,8 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { Jwt, Pagination, User } from '@shared/decorators';
@@ -69,6 +71,21 @@ export class UserRestController {
       userId: id,
       pagination,
     });
+  }
+
+  @Post('/:userId/verification-email')
+  @HandleModuleErrors(InvalidInputError, ResourceNotFoundError)
+  async sendVerificationInput(@Param('userId', ParseIntPipe) id: number) {
+    return this.userService.resendVerificationCode(id);
+  }
+
+  @Put('/:userId/verification')
+  @HandleModuleErrors(InvalidInputError, ResourceNotFoundError)
+  async verifyUser(
+    @Param('userId', ParseIntPipe) id: number,
+    @Query() query: any,
+  ) {
+    return this.userService.verify(id, query);
   }
 
   @Patch('/:userId')

@@ -79,13 +79,25 @@ export class UserPrismaRepository implements iUserRepository {
 
   @HandleAllPrismaErrors()
   async createOne(data: CreateOneUserInput): Promise<UserEntity> {
-    const { email, name, passwordHash } = data;
+    const {
+      email,
+      name,
+      passwordHash,
+      verified,
+      verificationCode,
+      verificationCodeDate,
+    } = data;
 
     return this.prisma.user.create({
       data: {
         email,
         name,
         passwordHash,
+        verified,
+        verificationCode,
+        verificationCodeDate:
+          verificationCodeDate ??
+          (verificationCode != undefined ? new Date() : undefined),
       },
     });
   }
@@ -137,13 +149,12 @@ export class UserPrismaRepository implements iUserRepository {
   }
 
   async findMany(data: FindManyUsersInput): Promise<Partial<UserEntity>[]> {
-    const { pagination, select, where } = data;
+    const { pagination, select } = data;
 
     return this.prisma.user.findMany({
       select: select && convertSelectToBooleans(select),
       skip: pagination && pagination.limit * pagination.page,
       take: pagination && pagination.limit,
-      where,
     });
   }
 }

@@ -9,6 +9,7 @@ import {
   UniqueConstraintViolationError,
 } from '@infra/database/errors';
 import { HandleDatabaseErrors } from '@infra/database/errors/handlers';
+import * as crypto from 'crypto';
 
 import { UserEntity } from '../entities';
 import {
@@ -19,18 +20,46 @@ import {
   GetUserProjectsInput,
   iUserService,
   UpdateUserInput,
+  VerifyUserInput,
 } from '../interfaces/user.service.interface';
 
 import { validatePlainObject } from '@lib/utils';
 import * as bcrypt from 'bcrypt';
 import { ProjectEntity } from '@modules/projects/entities';
+import { MailService } from '@infra/mail/mail.service';
 
 @Injectable()
 export class BasicUserService implements iUserService {
   constructor(
     private userRepository: iUserRepository,
     private projectRepository: iProjectRepository,
+    private mailService: MailService,
   ) {}
+
+  @HandleDatabaseErrors(EntityNotFoundError)
+  async verify(id: number, data: VerifyUserInput): Promise<void> {
+    const { verificationCode } = validatePlainObject(VerifyUserInput, data);
+
+    const user = await this.userRepository.findOneById(id);
+    if (user.verificationCode === verificationCode) {
+      await this.userRepository.updateOneById(id, {
+        verified: true,
+        verificationCode: null,
+        verificationCodeDate: null,
+      });
+    }
+  }
+
+  @HandleDatabaseErrors(EntityNotFoundError)
+  async resendVerificationCode(id: number) {
+    const verificationCode = this.generateVerificationCode();
+
+    const user = await this.userRepository.updateOneById(id, {
+      verificationCode,
+    });
+
+    await this.mailService.sendVerificationEmail(user.email, verificationCode);
+  }
 
   @HandleDatabaseErrors(EntityNotFoundError)
   async getUserProjects(
@@ -82,11 +111,18 @@ export class BasicUserService implements iUserService {
       data,
     );
 
-    return this.userRepository.createOne({
+    const verificationCode = this.generateVerificationCode();
+
+    const user = await this.userRepository.createOne({
       email,
       name,
+      verificationCode,
       passwordHash: await this.hashPassword(password),
     });
+
+    this.mailService.sendVerificationEmail(email, verificationCode);
+
+    return user;
   }
 
   @HandleDatabaseErrors(EntityNotFoundError)
@@ -119,5 +155,9 @@ export class BasicUserService implements iUserService {
 
   async hashPassword(password: string): Promise<string> {
     return bcrypt.hash(password, 10);
+  }
+
+  generateVerificationCode(): string {
+    return crypto.randomBytes(96).toString('base64url');
   }
 }

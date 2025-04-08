@@ -8,14 +8,15 @@ import {
 import { Constructor } from '@shared/types';
 
 import { ModuleError, RepeatedFieldError, ResourceNotFoundError } from '../';
-import { ImpossibleActionError } from '../impossible-action.error';
-import { InvalidInputError } from '../invalid-input.error';
+import { ImpossibleActionError } from '@shared/errors';
+import { InvalidInputError } from '@shared/errors';
 
 import { HandleErrors } from '@lib/decorators/handle-errors.decorator';
 import {
   UnauthenticatedUserError,
   UnauthorizedUserError,
 } from '@modules/auth/error';
+import { UnverifiedUserError } from '@shared/errors/unverified-user.error';
 
 function handleModuleError(error: ModuleError) {
   if (error instanceof ImpossibleActionError)
@@ -30,6 +31,8 @@ function handleModuleError(error: ModuleError) {
     throw new UnauthorizedException(error.message);
   else if (error instanceof UnauthorizedUserError)
     throw new UnauthorizedException(error.message);
+  else if (error instanceof UnverifiedUserError)
+    throw new UnprocessableEntityException(error.payload);
 }
 
 export function HandleModuleErrors(

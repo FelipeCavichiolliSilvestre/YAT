@@ -12,6 +12,7 @@ import { UnauthenticatedUserError, UnauthorizedUserError } from '../error';
 
 import * as bcrypt from 'bcrypt';
 import { JwtPayload } from '../types';
+import { UnverifiedUserError } from '@shared/errors/unverified-user.error';
 
 @Injectable()
 export class AuthenticationService implements iAuthenticationService {
@@ -22,6 +23,14 @@ export class AuthenticationService implements iAuthenticationService {
 
   async login({ email, password }: LoginInput): Promise<UserEntity> {
     const user = await this.userRepository.findOneByEmail(email);
+    if (!user.verified) {
+      throw new UnverifiedUserError({
+        user: {
+          id: user.id,
+          email: user.email,
+        },
+      });
+    }
     const validPassword = await bcrypt.compare(password, user.passwordHash);
     if (!validPassword) throw new UnauthorizedUserError('Incorrect password');
 
